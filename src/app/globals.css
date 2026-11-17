@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+/* Culorile din fișa de brand ZiFit (doar light mode) */
+:root {
+  --background: #f6f7f4;
+  --card: #ffffff;
+  --sidebar: #f0f2ec;
+  --border: #e3e6ea;
+  --foreground: #14181f;
+  --muted: #5b6270;
+  --sport: #2f7d5b;
+  --nutritie: #2f6fb0;
+  --on-accent: #ffffff;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-card: var(--card);
+  --color-sidebar: var(--sidebar);
+  --color-border: var(--border);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-sport: var(--sport);
+  --color-nutritie: var(--nutritie);
+  --color-on-accent: var(--on-accent);
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-oswald);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-oswald), system-ui, sans-serif;
+  font-weight: 500;
+}
+
+/* tipografie.css din skill-ul tipografie-ro */
+/* tipografie.css - asezarea textului, o singura data in stilul global (globals.css, layout, sablonul de email/PDF).
+   :where() nu adauga specificitate, deci orice regula a componentei o poate suprascrie. */
+
+/* Titluri si texte scurte: randuri de lungimi apropiate (Chromium echilibreaza pana la 6 randuri, Firefox pana la 10). */
+:where(h1, h2, h3, h4, h5, h6, blockquote, figcaption, button, label, th, .titlu, .text-scurt) {
+  text-wrap: balance;
+}
+
+/* Paragrafe si liste: browserul evita ultimul rand cu un singur cuvant. Unde nu e suportat, il ignora fara efecte. */
+:where(p, li, dd, td, .text) {
+  text-wrap: pretty;
+  overflow-wrap: break-word; /* linkurile si adresele lungi nu ies din cutie pe telefon */
+}
+
+/* Text centrat (carduri, confirmari, hero): mereu echilibrat, nu „treapta” cu un cuvant jos. */
+:where([style*="text-align: center"], [style*="text-align:center"], .text-center, .centrat) :where(p, span, div) {
+  text-wrap: balance;
+}
