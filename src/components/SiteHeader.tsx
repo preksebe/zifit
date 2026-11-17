@@ -2,8 +2,9 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { getCurrentProfile } from "@/lib/auth";
 import { logout } from "@/app/actions/auth";
+import { MeniuMobil } from "@/components/MeniuMobil";
 
-const LINK = "rounded-md px-3 py-1.5 text-sm font-medium hover:bg-sidebar";
+const LINK = "rounded-md px-3 py-2 text-left text-sm font-medium hover:bg-sidebar md:py-1.5";
 
 async function MeniuUtilizator() {
   const profil = await getCurrentProfile();
@@ -14,7 +15,7 @@ async function MeniuUtilizator() {
         <Link href="/autentificare" className={LINK}>
           Autentificare
         </Link>
-        <Link href="/inregistrare" className="rounded-md bg-sport px-3 py-1.5 text-sm font-medium text-on-accent">
+        <Link href="/inregistrare" className="rounded-md bg-sport px-3 py-2 text-sm font-medium text-on-accent md:py-1.5">
           Înregistrare
         </Link>
       </>
@@ -29,8 +30,11 @@ async function MeniuUtilizator() {
           Dashboard
         </Link>
       )}
+      <Link href="/contul-meu" className={LINK}>
+        Contul meu
+      </Link>
       <form action={logout}>
-        <button type="submit" className={LINK}>
+        <button type="submit" className={`${LINK} w-full`}>
           Deconectare
         </button>
       </form>
@@ -40,16 +44,25 @@ async function MeniuUtilizator() {
 
 export function SiteHeader() {
   return (
-    <header className="border-b border-border bg-card">
+    <header className="relative border-b border-border bg-card">
       <div className="mx-auto flex max-w-5xl items-center justify-between gap-2 px-4 py-3">
-        <Link href="/" className="font-display text-2xl uppercase tracking-wide">
-          ZiFit
+        <Link href="/" className="font-display text-2xl uppercase tracking-wide" aria-label="ZiFit, prima pagină">
+          ZI<span className="text-sport">FIT</span>
         </Link>
-        <nav className="flex items-center gap-1">
-          <Suspense fallback={<span className="h-8 w-24" aria-hidden />}>
+        <MeniuMobil>
+          <Link href="/planuri" className={LINK}>
+            Planuri
+          </Link>
+          <Link href="/despre" className={LINK}>
+            Despre
+          </Link>
+          <Link href="/contact" className={LINK}>
+            Contact
+          </Link>
+          <Suspense fallback={<span className="h-8 w-28" aria-hidden />}>
             <MeniuUtilizator />
           </Suspense>
-        </nav>
+        </MeniuMobil>
       </div>
     </header>
   );

@@ -302,7 +302,7 @@ export const planuri = [
     equipment: null,
     days_count: 7,
     description:
-      "Un plan de nutriție pe 7 zile. În fiecare zi ai 3 mese și 2 gustări de urmat.\n\nPlanul ține o săptămână, deci nu există o săptămână a doua. Fiecare zi are propriul meniu.\n\nE pentru cine vrea o structură pentru mesele de peste zi, fără să le planifice singur.",
+      "Un plan de nutriție pe 7 zile. În fiecare zi ai 3 mese și 2 gustări de urmat.\n\nPlanul ține o săptămână, iar fiecare zi are propriul meniu.\n\nE pentru cine vrea o structură pentru mesele de peste zi, fără să le planifice singur.",
     price_cents: 3900,
     zile: nutritie(),
   },

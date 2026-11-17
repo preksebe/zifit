@@ -33,7 +33,7 @@ export async function updateSession(request: NextRequest) {
     return redirect;
   };
 
-  const protejat = ["/dashboard", "/contul-meu", "/plata"].some((p) => path === p || path.startsWith(p + "/"));
+  const protejat = ["/dashboard", "/contul-meu", "/plata", "/cumpara"].some((p) => path === p || path.startsWith(p + "/"));
   if (protejat && !userId) {
     return copiazaCookies(NextResponse.redirect(new URL("/autentificare", request.url)));
   }
