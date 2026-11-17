@@ -47,6 +47,12 @@ console.log("Anonim");
     const { data, error } = await anon.from(t).select("*");
     check(`NU poate citi ${t}`, error != null || data?.length === 0);
   }
+  {
+    const { data, error } = await anon.from("zifit_mesaje").select("id");
+    check("NU poate citi zifit_mesaje", error != null || data?.length === 0);
+    const { error: eMs } = await anon.from("zifit_mesaje").insert({ name: "x", email: "x@x.xx", message: "x" });
+    check("NU poate scrie direct în zifit_mesaje", eMs != null);
+  }
   const { error: eIns } = await anon.from("zifit_plans").insert({ slug: "x", title: "x", category: "sport" });
   check("NU poate scrie în zifit_plans", eIns != null);
 }
@@ -92,6 +98,8 @@ try {
   // storage: client nu poate incarca
   const { error: eUp } = await client.storage.from("zifit-covers").upload(`test/${clientId}.txt`, new Blob(["x"]), { contentType: "text/plain" });
   check("NU poate încărca în zifit-covers", eUp != null);
+  const { data: msgC, error: eMc } = await client.from("zifit_mesaje").select("id");
+  check("clientul NU citește mesajele", eMc != null || msgC?.length === 0);
 
   // dupa o comanda platita (scrisa de server)
   console.log("Client cu plan cumpărat (comandă scrisă de server)");

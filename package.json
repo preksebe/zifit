@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:e2e": "node --env-file=.env.local e2e/zifit.e2e.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
