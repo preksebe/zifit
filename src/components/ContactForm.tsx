@@ -12,7 +12,7 @@ export function ContactForm() {
   if (state?.trimis) {
     return (
       <p role="status" className="max-w-prose rounded-lg border border-border bg-card p-5">
-        {T("Mesaj primit. Atenție: acesta e un formular de test, mesajul nu a fost trimis nimănui.")}
+        {T("Mesaj primit. Îți răspundem cât de repede putem.")}
       </p>
     );
   }
@@ -23,7 +23,7 @@ export function ContactForm() {
         <label htmlFor="nume" className="text-sm font-medium">
           Nume
         </label>
-        <input id="nume" name="nume" type="text" required autoComplete="name" className={CAMP} />
+        <input id="nume" name="nume" type="text" required maxLength={100} autoComplete="name" className={CAMP} />
       </div>
       <div>
         <label htmlFor="email" className="text-sm font-medium">
@@ -35,8 +35,13 @@ export function ContactForm() {
         <label htmlFor="mesaj" className="text-sm font-medium">
           Mesaj
         </label>
-        <textarea id="mesaj" name="mesaj" required rows={5} className={CAMP} />
+        <textarea id="mesaj" name="mesaj" required maxLength={2000} rows={5} className={CAMP} />
       </div>
+      {state?.error && (
+        <p role="alert" className="rounded-md border border-red-700 bg-card px-3 py-2 text-sm text-red-700">
+          {state.error}
+        </p>
+      )}
       <button
         type="submit"
         disabled={pending}

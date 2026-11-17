@@ -3,11 +3,22 @@ import { faraOrfane } from "@/lib/fara-orfane";
 import { CATEGORII, CULORI_CATEGORIE, DIFICULTATI } from "@/lib/labels";
 import type { Plan } from "@/lib/plans";
 
-type Props = Pick<Plan, "title" | "subtitle" | "category" | "difficulty" | "equipment" | "days_count">;
+type Props = Pick<Plan, "title" | "subtitle" | "category" | "difficulty" | "equipment" | "days_count"> & { cover_url?: string | null };
 
 // Coperta generata din cod: patrat alb, banda in culoarea categoriei, titlu Oswald cu majuscule.
-export function CopertaPlan({ title, subtitle, category, difficulty, equipment, days_count }: Props) {
+export function CopertaPlan({ title, subtitle, category, difficulty, equipment, days_count, cover_url }: Props) {
   const culori = CULORI_CATEGORIE[category];
+
+  // Daca adminul a incarcat o coperta, se afiseaza imaginea; altfel coperta generata din cod.
+  if (cover_url) {
+    return (
+      <div className="aspect-square w-full overflow-hidden rounded-lg border border-border bg-white">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={cover_url} alt={title} className="h-full w-full object-cover" />
+      </div>
+    );
+  }
+
   const eticheta = [CATEGORII[category], difficulty ? DIFICULTATI[difficulty] : null].filter(Boolean).join(" · ");
 
   return (

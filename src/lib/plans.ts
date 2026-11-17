@@ -14,6 +14,7 @@ export type Plan = {
   price_cents: number;
   currency: string;
   is_test: boolean;
+  cover_url: string | null;
 };
 
 export type DayItem = {
@@ -29,7 +30,7 @@ export type DayItem = {
 export type Day = { day_number: number; title: string | null; notes: string | null; items: DayItem[] };
 
 const COLUMNS =
-  "id, slug, title, subtitle, category, type, difficulty, equipment, days_count, description, price_cents, currency, is_test";
+  "id, slug, title, subtitle, category, type, difficulty, equipment, days_count, description, price_cents, currency, is_test, cover_url";
 
 export type Filtre = { categorie?: string; tip?: string; dificultate?: string };
 

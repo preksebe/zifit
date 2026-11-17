@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 // Reimprospateaza sesiunea Supabase la fiecare cerere si face verificari "optimiste" de acces.
-// Autoritatea reala sta in paginile de pe server (requireAdmin) si in RLS.
+// Autoritatea reala sta in paginile/actiunile de pe server (requireAdmin) si in RLS.
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
 
@@ -33,14 +33,25 @@ export async function updateSession(request: NextRequest) {
     return redirect;
   };
 
-  const protejat = ["/dashboard", "/contul-meu", "/plata", "/cumpara"].some((p) => path === p || path.startsWith(p + "/"));
+  // Profilul (rol, blocat) se citeste o data pe cerere, sub RLS (userul isi vede propriul profil).
+  let profil: { role: string; blocked: boolean } | null = null;
+  if (userId) {
+    const { data: p } = await supabase.from("zifit_profiles").select("role, blocked").eq("id", userId).maybeSingle();
+    profil = p;
+    // Un cont blocat e deconectat imediat, oriunde ar fi.
+    if (profil?.blocked) {
+      await supabase.auth.signOut();
+      return copiazaCookies(NextResponse.redirect(new URL("/autentificare", request.url)));
+    }
+  }
+
+  const protejat = ["/dashboard", "/contul-meu", "/plata"].some((p) => path === p || path.startsWith(p + "/"));
   if (protejat && !userId) {
     return copiazaCookies(NextResponse.redirect(new URL("/autentificare", request.url)));
   }
 
   if (path === "/dashboard" || path.startsWith("/dashboard/")) {
-    const { data: profil } = await supabase.from("zifit_profiles").select("role, blocked").eq("id", userId!).single();
-    if (profil?.role !== "admin" || profil.blocked) {
+    if (profil?.role !== "admin") {
       return copiazaCookies(NextResponse.redirect(new URL("/", request.url)));
     }
   }
