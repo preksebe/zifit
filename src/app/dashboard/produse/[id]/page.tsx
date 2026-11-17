@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowDown, ArrowUp } from "lucide-react";
-import { ConfirmAction } from "@/components/dashboard/ConfirmAction";
+import { ConfirmAction } from "@/components/ConfirmAction";
 import { PlanForm } from "@/components/dashboard/PlanForm";
 import { BTN, BTN_SECOND, INPUT_SM, LABEL } from "@/components/ui";
 import { requireAdmin } from "@/lib/auth";

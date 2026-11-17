@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ConfirmAction } from "@/components/dashboard/ConfirmAction";
+import { ConfirmAction } from "@/components/ConfirmAction";
 import { BTN_SECOND } from "@/components/ui";
 import { requireAdmin } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";

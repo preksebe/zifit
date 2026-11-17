@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ConfirmAction } from "@/components/dashboard/ConfirmAction";
+import { ConfirmAction } from "@/components/ConfirmAction";
 import { BTN, BTN_SECOND } from "@/components/ui";
 import { requireAdmin } from "@/lib/auth";
 import { CATEGORII, formatPret } from "@/lib/labels";
