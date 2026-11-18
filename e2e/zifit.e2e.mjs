@@ -10,6 +10,7 @@ import { createClient } from "@supabase/supabase-js";
 import { randomBytes } from "node:crypto";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { chromium } from "playwright";
+import { curataTeste } from "../scripts/curata-teste.mjs";
 
 const BASE = process.env.BASE_URL || "http://localhost:3100";
 const ts = Date.now();
@@ -22,6 +23,16 @@ const textMesaj = `mesaj-test-e2e-${ts}`;
 const service = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, {
   auth: { persistSession: false },
 });
+
+// Curatenie de la rulari anterioare intrerupte (planuri, conturi si mesaje de test ramase).
+await curataTeste(service);
+// La intrerupere (Ctrl+C / terminare) stergem datele de test inainte sa iesim.
+for (const semnal of ["SIGINT", "SIGTERM"]) {
+  process.on(semnal, async () => {
+    await curataTeste(service).catch(() => {});
+    process.exit(130);
+  });
+}
 
 const rezultate = [];
 async function pas(nume, fn) {
@@ -258,7 +269,7 @@ try {
     await pa.getByLabel("Slug (adresa planului)").fill(slugPlan);
     await pa.getByLabel("Preț (RON, de test)").fill("10");
     await pa.getByLabel("Descriere", { exact: false }).fill("Plan creat de testul automat.");
-    await pa.getByLabel("Publicat (vizibil în magazin)").check();
+    // Planul se creeaza NEPUBLICAT; se publica abia la pasul care il verifica in magazin.
     await pa.getByRole("button", { name: "Creează planul" }).click();
     await asteaptaCale(pa, /^\/dashboard\/produse\/[0-9a-f-]{36}$/);
     const zi = (n) => pa.locator("section", { has: pa.getByRole("heading", { name: `Ziua ${n}`, exact: true }) });
@@ -277,6 +288,11 @@ try {
     await pa.getByText("Număr de zile: 2").waitFor();
   });
   await pas("planul apare în magazin", async () => {
+    await pa.goto("/dashboard/produse");
+    const rand = pa.locator("tr", { hasText: slugPlan });
+    await rand.getByText("Ascuns").waitFor();
+    await rand.getByRole("button", { name: "Publică" }).click();
+    await rand.getByText("Publicat").waitFor();
     await pa.goto("/planuri");
     await pa.getByText(titluPlan.toUpperCase(), { exact: false }).first().waitFor();
     await pa.goto(`/planuri/${slugPlan}`);
@@ -394,16 +410,12 @@ try {
   // ============ Curatenie ============
   console.log("Curățenie");
   try {
-    const { data: lista } = await service.auth.admin.listUsers({ page: 1, perPage: 200 });
-    const u = lista?.users.find((x) => x.email === emailClient);
-    if (u) await service.auth.admin.deleteUser(u.id); // sterge profilul, comenzile si progresul (cascada)
-    await service.from("zifit_plans").delete().eq("slug", slugPlan); // sterge zilele si elementele (cascada)
-    await service.from("zifit_mesaje").delete().like("message", `${textMesaj}%`);
-    const { data: ramas } = await service.from("zifit_plans").select("id").eq("slug", slugPlan);
-    const { data: ramasM } = await service.from("zifit_mesaje").select("id").like("message", `${textMesaj}%`);
+    const r = await curataTeste(service);
+    const { data: ramas } = await service.from("zifit_plans").select("id").like("slug", "plan-test-e2e-%");
+    const { data: ramasM } = await service.from("zifit_mesaje").select("id").like("message", "mesaj-test-e2e-%");
     const { data: lista2 } = await service.auth.admin.listUsers({ page: 1, perPage: 200 });
-    const curat = !ramas?.length && !ramasM?.length && !lista2?.users.some((x) => x.email === emailClient);
-    console.log(curat ? "  OK    datele de test au fost șterse" : "  ATENȚIE: au rămas date de test");
+    const curat = !ramas?.length && !ramasM?.length && !lista2?.users.some((x) => /^client-test-\d+@zifit\.test$/.test(x.email ?? ""));
+    console.log(curat ? `  OK    datele de test au fost șterse (${r.planuri} plan, ${r.useri} cont, ${r.mesaje} mesaj)` : "  ATENȚIE: au rămas date de test");
   } catch (e) {
     console.log("  Curățenia a eșuat:", String(e.message).slice(0, 150));
   }

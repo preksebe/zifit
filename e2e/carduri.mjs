@@ -62,8 +62,13 @@ const ANALIZA = () => {
     if (sr.bottom > ir.top + 1) probleme.push(`subtitlul se lipește de rândul cu iconițe: «${titlu}»`);
     // informatii lipsa: trebuie 3 pentru sport cu dificultate, 2 pentru nutritie
     const n = [...info.querySelectorAll("li")].filter((li) => li.textContent.trim()).length;
-    randuri.push({ titlu, top: Math.round(cr.top + scrollY), subTop: Math.round(sr.top - cr.top), subH: Math.round(sr.height), infoTop: Math.round(ir.top - cr.top), infoH: Math.round(ir.height), h: Math.round(cr.height), w: Math.round(cr.width), info: n });
+    randuri.push({ marime: getComputedStyle(h).fontSize, zona: Math.round(hr.height), titlu, top: Math.round(cr.top + scrollY), subTop: Math.round(sr.top - cr.top), subH: Math.round(sr.height), infoTop: Math.round(ir.top - cr.top), infoH: Math.round(ir.height), h: Math.round(cr.height), w: Math.round(cr.width), info: n });
   }
+  // 5. aceeasi marime de font si aceeasi zona de titlu pe toate cardurile paginii (marimea e in cqw: comparam raportul cu latimea cardului)
+  const rapoarte = new Set(randuri.map((r) => (parseFloat(r.marime) / r.w).toFixed(3)));
+  if (rapoarte.size > 1) probleme.push(`mărimi de titlu diferite pe pagină: ${[...rapoarte].join(" / ")}`);
+  const zone = new Set(randuri.map((r) => (r.zona / r.w).toFixed(3)));
+  if (zone.size > 1) probleme.push(`zone de titlu cu înălțimi diferite: ${[...zone].join(" / ")}`);
   // 3. aceeasi pozitie pe randul de carduri
   const dupaRand = new Map();
   for (const r of randuri) dupaRand.set(r.top, [...(dupaRand.get(r.top) ?? []), r]);
@@ -82,7 +87,7 @@ let totalProbleme = 0;
 const raport = [];
 
 async function verifica(rol, pagini, loginButon) {
-  for (const w of [375, 1280]) {
+  for (const w of [375, 768, 1024, 1280, 1440]) {
     const ctx = await browser.newContext({ viewport: { width: w, height: 900 }, baseURL: BASE });
     const p = await ctx.newPage();
     if (loginButon) {
@@ -100,6 +105,11 @@ async function verifica(rol, pagini, loginButon) {
       if (nume) {
         // captura numai a zonei cu carduri (sau a paginii intregi pentru pagini scurte)
         await p.screenshot({ path: `${CAPTURI}/${nume}-${w}.png`, fullPage: true });
+        if (nume === "planuri") {
+          // lista de carduri, decupata (fara filtre)
+          const lista = p.locator('a[aria-label^="Plan: "]').first();
+          void lista;
+        }
       }
     }
     await ctx.close();
