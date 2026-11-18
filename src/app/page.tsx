@@ -99,7 +99,7 @@ export default function Home() {
         <h2 className="max-w-xl text-3xl uppercase">{T("Mișcare și mese, în același loc")}</h2>
         <p className="mt-4 max-w-prose text-muted">
           {T(
-            "Planurile de sport te duc prin antrenamente, o zi pe rând. Planul de nutriție îți spune ce mănânci în fiecare zi: 3 mese și 2 gustări. Le poți lua separat sau împreună.",
+            "Planurile de sport te duc prin antrenamente, o zi pe rând. Planurile de nutriție îți spun ce mănânci în fiecare zi. Le poți lua separat sau împreună.",
           )}
         </p>
         <Suspense fallback={<p className="mt-8 text-muted">Se încarcă…</p>}>
