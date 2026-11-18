@@ -4,7 +4,7 @@ import { getCurrentProfile } from "@/lib/auth";
 import { logout } from "@/app/actions/auth";
 import { MeniuMobil } from "@/components/MeniuMobil";
 
-const LINK = "rounded-md px-3 py-2 text-left text-sm font-medium hover:bg-sidebar md:py-1.5";
+const LINK = "rounded-md px-3 py-2 text-left text-sm font-medium hover:bg-sidebar lg:py-1.5";
 
 async function MeniuUtilizator() {
   const profil = await getCurrentProfile();
@@ -15,7 +15,7 @@ async function MeniuUtilizator() {
         <Link href="/autentificare" className={LINK}>
           Autentificare
         </Link>
-        <Link href="/inregistrare" className="rounded-md bg-sport px-3 py-2 text-sm font-medium text-on-accent md:py-1.5">
+        <Link href="/inregistrare" className="rounded-md bg-sport px-3 py-2 text-sm font-medium text-on-accent lg:py-1.5">
           Înregistrare
         </Link>
       </>

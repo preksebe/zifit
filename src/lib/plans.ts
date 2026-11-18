@@ -70,3 +70,25 @@ export async function getDay1(planId: string): Promise<Day | null> {
   const items = ([...(data.zifit_day_items ?? [])] as DayItem[]).sort((a, b) => a.position - b.position);
   return { day_number: data.day_number, title: data.title, notes: data.notes, items };
 }
+
+// Numarul de planuri publicate pe categorie (calculat din baza, nu scris de mana).
+export async function getCategoryCounts(): Promise<{ sport: number; nutritie: number }> {
+  const supabase = await createClient();
+  const head = { count: "exact", head: true } as const;
+  const [sport, nutritie] = await Promise.all([
+    supabase.from("zifit_plans").select("id", head).eq("published", true).eq("category", "sport"),
+    supabase.from("zifit_plans").select("id", head).eq("published", true).eq("category", "nutritie"),
+  ]);
+  return { sport: sport.count ?? 0, nutritie: nutritie.count ?? 0 };
+}
+
+// Planurile recomandate pe prima pagina: cele cerute (in ordinea data), completate cu alte planuri publicate daca lipsesc.
+export async function getFeaturedPlans(slugs: string[], total: number): Promise<Plan[]> {
+  const toate = await getPlans();
+  const alese = slugs.map((s) => toate.find((p) => p.slug === s)).filter((p): p is Plan => !!p);
+  for (const p of toate) {
+    if (alese.length >= total) break;
+    if (!alese.includes(p)) alese.push(p);
+  }
+  return alese.slice(0, total);
+}

@@ -72,6 +72,41 @@ try {
     await pv.locator('a[aria-label^="Plan: "]').first().waitFor();
     aserteaza((await pv.locator('a[aria-label^="Plan: "]').count()) >= 4, "mai puțin de 4 planuri");
   });
+  await pas("pagina principală: hero cu un singur „Vezi planurile”, 3 pași, 2 categorii, 3 planuri recomandate, îndemn final", async () => {
+    await pv.goto("/");
+    await pv.getByRole("heading", { name: "O zi, un antrenament" }).waitFor();
+    aserteaza((await pv.getByRole("link", { name: "Vezi planurile", exact: true }).count()) === 1, "„Vezi planurile” nu apare o singură dată");
+    for (const t of ["1. Alegi planul", "2. Îl cumperi", "3. Îl urmezi zi cu zi"]) await pv.getByRole("heading", { name: t }).waitFor();
+    await pv.getByRole("heading", { name: "Câteva planuri cu care poți începe" }).waitFor();
+    await pv.locator('a[aria-label^="Plan: "]').first().waitFor();
+    aserteaza((await pv.locator('a[aria-label^="Plan: "]').count()) === 3, "nu sunt exact 3 planuri recomandate pe pagina principală");
+    for (const t of ["Mobilitate", "Yoga de dimineață", "Nutriție echilibrată"]) {
+      aserteaza((await pv.locator(`a[aria-label="Plan: ${t}"]`).count()) === 1, `lipsește planul recomandat „${t}”`);
+    }
+    await pv.getByRole("link", { name: "Toate planurile" }).waitFor();
+    await pv.getByRole("link", { name: "Alege un plan" }).waitFor();
+  });
+  await pas("cardurile de categorie au numerele calculate din bază și trimit la filtre", async () => {
+    const { count: sport } = await service.from("zifit_plans").select("id", { count: "exact", head: true }).eq("published", true).eq("category", "sport");
+    const { count: nutritie } = await service.from("zifit_plans").select("id", { count: "exact", head: true }).eq("published", true).eq("category", "nutritie");
+    const text = (n) => (n === 1 ? "1 plan" : n >= 20 ? `${n} de planuri` : `${n} planuri`);
+    const cardSport = pv.locator('a[href="/planuri?categorie=sport"]');
+    const cardNutritie = pv.locator('a[href="/planuri?categorie=nutritie"]');
+    await cardSport.getByText("Planuri de sport").waitFor();
+    await cardSport.getByText(text(sport), { exact: true }).waitFor();
+    await cardSport.getByText("Vezi planurile de sport").waitFor();
+    await cardNutritie.getByText("Planuri de nutriție").waitFor();
+    await cardNutritie.getByText(text(nutritie), { exact: true }).waitFor();
+    await cardNutritie.getByText("Vezi planurile de nutriție").waitFor();
+    await cardSport.click();
+    await pv.waitForURL((u) => u.pathname === "/planuri" && u.searchParams.get("categorie") === "sport", { timeout: 15000 });
+    // Navigarea e pe client, iar Next pastreaza pagina veche ascunsa in DOM: numaram doar cardurile VIZIBILE.
+    await pv.waitForFunction(
+      (n) => [...document.querySelectorAll('a[aria-label^="Plan: "]')].filter((e) => e.offsetParent !== null).length === n,
+      sport,
+      { timeout: 15000 },
+    );
+  });
   await pas("vede ziua 1 și zilele blocate la „Mobilitate”", async () => {
     await pv.goto("/planuri/mobilitate");
     await pv.getByText("Previzualizare: ziua 1").waitFor();
