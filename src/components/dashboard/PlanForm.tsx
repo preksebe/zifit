@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { salveazaPlan, type PlanFormState } from "@/app/dashboard/actions";
 import { BTN, INPUT, LABEL } from "@/components/ui";
+import { faraOrfane as T } from "@/lib/fara-orfane";
 
 export type PlanInitial = {
   id?: string;
@@ -93,14 +94,14 @@ export function PlanForm({ initial }: { initial: PlanInitial }) {
 
       <div>
         <label htmlFor="description" className={LABEL}>
-          Descriere (paragrafele se separă printr-un rând gol)
+          {T("Descriere (paragrafele se separă printr-un rând gol)")}
         </label>
         <textarea id="description" name="description" rows={7} maxLength={3000} defaultValue={v("description")} className={INPUT} />
       </div>
 
       <div>
         <label htmlFor="cover" className={LABEL}>
-          Copertă (PNG, JPG sau WebP, maximum 2 MB)
+          {T("Copertă (PNG, JPG sau WebP, maximum 2 MB)")}
         </label>
         {initial.cover_url && (
           <div className="mt-2 flex items-center gap-3">

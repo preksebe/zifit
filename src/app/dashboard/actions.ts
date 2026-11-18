@@ -8,6 +8,7 @@ import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { esteContDemo } from "@/lib/demo";
 
 export type PlanFormState = {
   error?: string;
@@ -250,11 +251,19 @@ export async function stergeElement(fd: FormData) {
 }
 
 // ---------- Utilizatori ----------
+// Conturile demo (admin@zifit.test, client-demo@zifit.test) nu se pot sterge, bloca sau schimba de aici.
+async function refuzaContDemo(userId: string) {
+  const supabase = await createClient();
+  const { data } = await supabase.from("zifit_profiles").select("email").eq("id", userId).maybeSingle();
+  if (esteContDemo(data?.email)) redirect("/dashboard/utilizatori?eroare=cont-demo");
+}
+
 export async function seteazaRol(fd: FormData) {
   const eu = await requireAdmin();
   const userId = txt(fd, "user_id");
   const rol = txt(fd, "rol");
   if (userId === eu.id) redirect("/dashboard/utilizatori?eroare=propriul-cont"); // adminul nu se scoate singur din admin
+  await refuzaContDemo(userId);
   if (!["client", "admin"].includes(rol)) return;
   const supabase = await createClient();
   await supabase.from("zifit_profiles").update({ role: rol }).eq("id", userId);
@@ -266,6 +275,7 @@ export async function seteazaBlocat(fd: FormData) {
   const userId = txt(fd, "user_id");
   const blocat = txt(fd, "blocat") === "true";
   if (userId === eu.id) redirect("/dashboard/utilizatori?eroare=propriul-cont"); // adminul nu se blocheaza singur
+  await refuzaContDemo(userId);
   const supabase = await createClient();
   await supabase.from("zifit_profiles").update({ blocked: blocat }).eq("id", userId);
   reimprospateaza();
@@ -275,6 +285,7 @@ export async function stergeUtilizator(fd: FormData) {
   const eu = await requireAdmin();
   const userId = txt(fd, "user_id");
   if (userId === eu.id) redirect("/dashboard/utilizatori?eroare=propriul-cont"); // adminul nu se sterge singur
+  await refuzaContDemo(userId);
   // Stergerea contului din Auth necesita service role; profilul, comenzile si progresul se sterg in cascada.
   await createAdminClient().auth.admin.deleteUser(userId);
   reimprospateaza();

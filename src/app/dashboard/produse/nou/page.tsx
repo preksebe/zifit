@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PlanForm } from "@/components/dashboard/PlanForm";
 import { requireAdmin } from "@/lib/auth";
+import { faraOrfane as T } from "@/lib/fara-orfane";
 
 export const metadata: Metadata = { title: "Plan nou · Dashboard · ZiFit" };
 
@@ -16,7 +17,7 @@ export default async function Page() {
       <PlanForm
         initial={{ title: "", slug: "", subtitle: "", category: "sport", type: "", difficulty: "", equipment: "", description: "", price: "", published: false }}
       />
-      <p className="mt-4 max-w-2xl text-sm text-muted">După ce creezi planul, îi poți adăuga zilele și exercițiile sau mesele.</p>
+      <p className="mt-4 max-w-2xl text-sm text-muted">{T("După ce creezi planul, îi poți adăuga zilele și exercițiile sau mesele.")}</p>
     </main>
   );
 }

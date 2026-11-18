@@ -1,4 +1,5 @@
 import { BTN_DANGER, BTN_DANGER_SOLID, BTN_SECOND } from "@/components/ui";
+import { faraOrfane as T } from "@/lib/fara-orfane";
 
 // Actiune cu confirmare, fara JavaScript: butonul deschide un <details> cu intrebarea si butonul „Da”.
 export function ConfirmAction({
@@ -23,8 +24,8 @@ export function ConfirmAction({
         {Object.entries(fields).map(([k, v]) => (
           <input key={k} type="hidden" name={k} value={v} />
         ))}
-        <p>{question}</p>
-        <button type="submit" className={danger ? BTN_DANGER_SOLID : BTN_SECOND}>
+        <p>{T(question)}</p>
+        <button type="submit" className={`${danger ? BTN_DANGER_SOLID : BTN_SECOND} whitespace-nowrap`}>
           {confirmLabel}
         </button>
       </form>

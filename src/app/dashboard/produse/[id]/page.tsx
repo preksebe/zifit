@@ -6,6 +6,7 @@ import { ConfirmAction } from "@/components/ConfirmAction";
 import { PlanForm } from "@/components/dashboard/PlanForm";
 import { BTN, BTN_SECOND, INPUT_SM, LABEL } from "@/components/ui";
 import { requireAdmin } from "@/lib/auth";
+import { faraOrfane as T } from "@/lib/fara-orfane";
 import { createClient } from "@/lib/supabase/server";
 import { adaugaElement, adaugaZi, mutaElement, mutaZi, salveazaElement, salveazaZi, stergeElement, stergeZi } from "../../actions";
 
@@ -55,7 +56,7 @@ function CampuriElement({ kind, item }: { kind: "exercitiu" | "masa"; item?: Ite
             <input name="reps" maxLength={60} defaultValue={item?.reps ?? ""} className={INPUT_SM} />
           </div>
           <div className="w-24">
-            <label className={LABEL}>Pauză (s)</label>
+            <label className={`${LABEL} whitespace-nowrap`}>{T("Pauză (s)")}</label>
             <input name="rest_seconds" type="number" min={0} max={3600} defaultValue={item?.rest_seconds ?? ""} className={INPUT_SM} />
           </div>
         </>

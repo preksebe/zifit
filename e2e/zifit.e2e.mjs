@@ -299,6 +299,62 @@ try {
     await pc.goto("/contul-meu");
     await asteaptaCale(pc, /^\/autentificare$/);
   });
+
+  // ============ 4. Conturi demo ============
+  console.log("4. Conturi demo (butoane de conectare rapidă)");
+  const ctxDemo = await nouContext();
+  const pd = await ctxDemo.newPage();
+  await pas("pe /autentificare apar caseta și cele două butoane", async () => {
+    await pd.goto("/autentificare");
+    await pd.getByText("Conturi demo (temporar)").waitFor();
+    await pd.getByRole("button", { name: "Intră ca client demo" }).waitFor();
+    await pd.getByRole("button", { name: "Intră ca admin demo" }).waitFor();
+  });
+  await pas("parolele demo nu apar în HTML-ul paginii", async () => {
+    const html = await (await fetch(`${BASE}/autentificare`)).text();
+    for (const k of ["DEMO_CLIENT_PASSWORD", "DEMO_ADMIN_PASSWORD", "SUPABASE_SERVICE_ROLE_KEY"]) {
+      const v = process.env[k];
+      aserteaza(v && v.length > 8, `variabila ${k} lipsește din mediul testului`);
+      aserteaza(!html.includes(v), `valoarea ${k} apare în HTML`);
+    }
+  });
+  await pas("„Intră ca client demo”: conectat, vede planul în „Contul meu”, fără „Dashboard”", async () => {
+    await pd.getByRole("button", { name: "Intră ca client demo" }).click();
+    await asteaptaCale(pd, /^\/contul-meu$/);
+    await pd.getByRole("heading", { name: "Mobilitate" }).waitFor();
+    await pd.getByRole("button", { name: "Deconectare" }).waitFor();
+    aserteaza((await pd.getByRole("link", { name: "Dashboard", exact: true }).count()) === 0, "clientul demo vede Dashboard");
+    await pd.goto("/dashboard");
+    aserteaza(cale(pd) === "/", `clientul demo a ajuns la ${cale(pd)}`);
+  });
+  await pas("„Intră ca admin demo”: vede „Dashboard”", async () => {
+    await pd.getByRole("button", { name: "Deconectare" }).click();
+    await pd.goto("/autentificare");
+    await pd.getByRole("button", { name: "Intră ca admin demo" }).click();
+    await asteaptaCale(pd, /^\/dashboard$/);
+    await pd.getByRole("link", { name: "Dashboard", exact: true }).waitFor();
+  });
+  await pas("conturile demo sunt protejate în dashboard", async () => {
+    await pd.goto("/dashboard/utilizatori");
+    const rand = pd.locator("tr", { hasText: "client-demo@zifit.test" });
+    await rand.getByText("Cont demo (protejat)").waitFor();
+    aserteaza((await rand.getByRole("button").count()) === 0, "clientul demo are butoane de acțiune");
+  });
+  await pas("acțiunea de server refuză blocarea unui cont demo, chiar cu formular falsificat", async () => {
+    const { data: u } = await service.from("zifit_profiles").select("id").eq("email", "client-demo@zifit.test").single();
+    await pd.goto("/dashboard/utilizatori");
+    // Luam formularul „Deblochează” al clientului de test si ii inlocuim id-ul cu cel al clientului demo.
+    const rand = pd.locator("tr", { hasText: emailClient });
+    const formular = rand.locator("form", { has: pd.getByRole("button", { name: "Deblochează" }) });
+    await formular.locator('input[name="user_id"]').evaluate((el, id) => (el.value = id), u.id);
+    await formular.locator('input[name="blocat"]').evaluate((el) => (el.value = "true"));
+    await formular.getByRole("button", { name: "Deblochează" }).click();
+    await pd.waitForURL((x) => x.searchParams.get("eroare") === "cont-demo", { timeout: 15000 });
+    await pd.getByText("Conturile demo sunt protejate").waitFor();
+    const { data: dupa } = await service.from("zifit_profiles").select("blocked, role").eq("id", u.id).single();
+    aserteaza(dupa.blocked === false && dupa.role === "client", "contul demo a fost modificat");
+  });
+  await ctxDemo.close();
 } finally {
   // ============ Curatenie ============
   console.log("Curățenie");

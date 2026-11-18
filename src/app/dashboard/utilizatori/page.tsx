@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ConfirmAction } from "@/components/ConfirmAction";
 import { BTN_SECOND } from "@/components/ui";
 import { requireAdmin } from "@/lib/auth";
+import { esteContDemo } from "@/lib/demo";
 import { createClient } from "@/lib/supabase/server";
 import { seteazaBlocat, seteazaRol, stergeUtilizator } from "../actions";
 
@@ -31,6 +32,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ e
     <main>
       <h1 className="text-4xl uppercase tracking-wide">Utilizatori</h1>
 
+      {eroare === "cont-demo" && (
+        <p role="alert" className="mt-4 rounded-md border border-red-700 bg-card px-3 py-2 text-sm text-red-700">
+          Conturile demo sunt protejate: nu pot fi șterse, blocate sau schimbate.
+        </p>
+      )}
       {eroare === "propriul-cont" && (
         <p role="alert" className="mt-4 rounded-md border border-red-700 bg-card px-3 py-2 text-sm text-red-700">
           Nu îți poți scoate singur rolul de admin, nu te poți bloca și nu îți poți șterge contul.
@@ -65,6 +71,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ e
                   <td className="px-3 py-2">
                     {esteEu ? (
                       <span className="text-muted">—</span>
+                    ) : esteContDemo(p.email) ? (
+                      <span className="text-muted">Cont demo (protejat)</span>
                     ) : (
                       <div className="flex flex-wrap items-start gap-2">
                         <form action={seteazaRol}>
