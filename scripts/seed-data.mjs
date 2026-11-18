@@ -1,7 +1,7 @@
 // Date de test pentru ZiFit. Exercitiile, repetarile, mesele si preturile sunt inventate, doar pentru test.
 // Descrierile vin din agent-copywriter/livrari/zifit/texte-site.md.
 
-const ex = (name, sets, reps, rest_seconds, details) => ({
+export const ex = (name, sets, reps, rest_seconds, details) => ({
   kind: "exercitiu",
   name,
   sets,
@@ -10,7 +10,7 @@ const ex = (name, sets, reps, rest_seconds, details) => ({
   details,
 });
 
-const masa = (name, details) => ({ kind: "masa", name, details });
+export const masa = (name, details) => ({ kind: "masa", name, details });
 
 // ---------- 1. Mobilitate (14 zile, usor, fara echipament) ----------
 const mobilitateTeme = [

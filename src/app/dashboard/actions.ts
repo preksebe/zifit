@@ -18,7 +18,7 @@ export type PlanFormState = {
 
 const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const CATEGORII = ["sport", "nutritie"];
-const DIFICULTATI = ["usor", "mediu", "avansat"];
+const DIFICULTATI = ["usor", "mediu", "greu"];
 const TIPURI_IMAGINE = ["image/png", "image/jpeg", "image/webp"];
 const MAX_IMAGINE = 2 * 1024 * 1024;
 

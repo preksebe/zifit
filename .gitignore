@@ -42,3 +42,6 @@ next-env.d.ts
 
 # local admin test credentials
 ADMIN-TEST.local.md
+
+# capturi de ecran generate de teste
+e2e/capturi/

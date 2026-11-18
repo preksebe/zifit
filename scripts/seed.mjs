@@ -6,6 +6,10 @@ import { createClient } from "@supabase/supabase-js";
 import { randomBytes } from "node:crypto";
 import { existsSync, writeFileSync } from "node:fs";
 import { planuri } from "./seed-data.mjs";
+import { planuriNoi } from "./seed-data-noi.mjs";
+
+// --doar-noi: seed doar pentru cele 8 planuri adaugate ulterior (nu atinge primele 4 planuri si nici contul admin).
+const DOAR_NOI = process.argv.includes("--doar-noi");
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -86,7 +90,8 @@ async function seedAdmin() {
 }
 
 async function seedPlanuri() {
-  for (const { zile, ...plan } of planuri) {
+  const lista = DOAR_NOI ? planuriNoi : [...planuri, ...planuriNoi];
+  for (const { zile, ...plan } of lista) {
     const { data: p, error } = await sb
       .from("zifit_plans")
       .upsert({ ...plan, published: true, is_test: true }, { onConflict: "slug" })
@@ -123,6 +128,6 @@ async function seedPlanuri() {
   }
 }
 
-await seedAdmin();
+if (!DOAR_NOI) await seedAdmin();
 await seedPlanuri();
 console.log("Seed terminat.");

@@ -26,16 +26,18 @@ function check(nume, conditie, detaliu = "") {
   }
 }
 
-const TOTAL_ZILE = 14 + 21 + 14 + 7;
+// Numarul asteptat de planuri si de zile vine din baza (cu service role), ca testul sa mearga si dupa adaugarea de planuri noi.
+const { count: N_PLANURI } = await service.from("zifit_plans").select("id", { count: "exact", head: true }).eq("published", true);
+const { count: TOTAL_ZILE } = await service.from("zifit_plan_days").select("id", { count: "exact", head: true });
 
 // ----- anonim -----
 console.log("Anonim");
 {
   const { data: plans } = await anon.from("zifit_plans").select("slug").order("slug");
-  check("vede cele 4 planuri publicate", plans?.length === 4, `a primit ${plans?.length}`);
+  check(`vede cele ${N_PLANURI} planuri publicate`, plans?.length === N_PLANURI, `a primit ${plans?.length}`);
 
   const { data: days } = await anon.from("zifit_plan_days").select("day_number");
-  check("vede doar ziua 1 (4 zile în total)", days?.length === 4 && days.every((d) => d.day_number === 1), `a primit ${days?.length}`);
+  check(`vede doar ziua 1 (${N_PLANURI} zile în total)`, days?.length === N_PLANURI && days.every((d) => d.day_number === 1), `a primit ${days?.length}`);
   const { data: forta } = await anon.from("zifit_plans").select("id").eq("slug", "forta-acasa").single();
   const { data: z2 } = await anon.from("zifit_plan_days").select("id").eq("plan_id", forta.id).eq("day_number", 2);
   check("NU vede ziua 2", z2?.length === 0);
@@ -76,7 +78,7 @@ try {
   check("vede doar propriul profil", toate?.length === 1);
 
   const { data: zc } = await client.from("zifit_plan_days").select("day_number");
-  check("fără comandă: vede doar ziua 1 (4 zile în total)", zc?.length === 4);
+  check(`fără comandă: vede doar ziua 1 (${N_PLANURI} zile în total)`, zc?.length === N_PLANURI);
   const { data: forta } = await client.from("zifit_plans").select("id").eq("slug", "forta-acasa").single();
   const { data: z2 } = await client.from("zifit_plan_days").select("id").eq("plan_id", forta.id).eq("day_number", 2);
   check("fără comandă: NU vede ziua 2", z2?.length === 0);
@@ -108,7 +110,7 @@ try {
   const { data: zf } = await client.from("zifit_plan_days").select("day_number").eq("plan_id", forta.id);
   check("vede toate cele 21 de zile ale planului cumpărat", zf?.length === 21, `a primit ${zf?.length}`);
   const { data: altele } = await client.from("zifit_plan_days").select("id").neq("plan_id", forta.id);
-  check("la celelalte planuri vede tot doar ziua 1", altele?.length === 3);
+  check("la celelalte planuri vede tot doar ziua 1", altele?.length === N_PLANURI - 1);
   const { error: eBif } = await client.from("zifit_progress").insert({ user_id: clientId, plan_id: forta.id, day_number: 1 });
   check("poate bifa ziua 1", !eBif, eBif?.message);
   const { data: prog } = await client.from("zifit_progress").select("day_number");

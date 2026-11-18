@@ -1,5 +1,5 @@
 export const CATEGORII = { sport: "Sport", nutritie: "Nutriție" } as const;
-export const DIFICULTATI = { usor: "Ușor", mediu: "Mediu", avansat: "Avansat" } as const;
+export const DIFICULTATI = { usor: "Ușor", mediu: "Mediu", greu: "Greu" } as const;
 
 export const CULORI_CATEGORIE = {
   sport: { banda: "bg-sport", text: "text-sport", buton: "bg-sport" },
@@ -13,12 +13,20 @@ export function formatPret(cents: number, moneda: string) {
   return `${text} ${moneda}`;
 }
 
-// Textele „Ce primești” din livrarea copywriterului (texte-site.md, secțiunea 5).
+// Textele „Ce primești” din livrările copywriterului (texte-site.md și planuri-noi.md).
+// Prima linie depinde de plan; celelalte doua sunt aceleasi la toate.
+const UNITATE: Record<string, string> = { "stretching-de-seara": "seri" };
+
 export function ceaPrimesti(slug: string, zile: number): string[] {
-  const zileText = zile === 21 ? "21 de zile" : `${zile} zile`;
-  const primul =
-    slug === "nutritie-echilibrata"
-      ? `Un program de 3 mese și 2 gustări pentru fiecare dintre cele ${zileText}`
-      : `Un program pentru fiecare dintre cele ${zileText}`;
+  const unitate = UNITATE[slug] ?? "zile";
+  const nr = zile >= 20 ? `${zile} de ${unitate}` : `${zile} ${unitate}`;
+  let primul = `Un program pentru fiecare dintre cele ${nr}`;
+  if (slug === "nutritie-echilibrata" || slug === "nutritie-vegetariana") {
+    primul = `Un ${slug === "nutritie-vegetariana" ? "meniu" : "program"} de 3 mese și 2 gustări pentru fiecare dintre cele ${nr}`;
+  } else if (slug === "mic-dejun-rapid") {
+    primul = `Un mic dejun pentru fiecare dintre cele ${nr}`;
+  } else if (slug === "mese-zile-aglomerate") {
+    primul = `Un meniu de 3 mese pentru fiecare dintre cele ${nr}`;
+  }
   return [primul, "Bifarea zilelor, cu progres salvat în cont", "Acces la plan din contul tău"];
 }

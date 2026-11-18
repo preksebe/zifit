@@ -72,7 +72,7 @@ export function PlanForm({ initial }: { initial: PlanInitial }) {
             <option value="">Fără</option>
             <option value="usor">Ușor</option>
             <option value="mediu">Mediu</option>
-            <option value="avansat">Avansat</option>
+            <option value="greu">Greu</option>
           </select>
         </div>
       </div>

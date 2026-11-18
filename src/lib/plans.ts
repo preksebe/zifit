@@ -7,7 +7,7 @@ export type Plan = {
   subtitle: string | null;
   category: "sport" | "nutritie";
   type: string | null;
-  difficulty: "usor" | "mediu" | "avansat" | null;
+  difficulty: "usor" | "mediu" | "greu" | null;
   equipment: string | null;
   days_count: number;
   description: string | null;
